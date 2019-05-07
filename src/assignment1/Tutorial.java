@@ -54,7 +54,7 @@ public class Tutorial {
         long bitSequence = Long.parseLong("110", 2);
         System.out.println("Amount of 1s in 110: " + Long.bitCount(bitSequence));
 
-        // Length of bitsequence measured from first 1
+        // Length of bit sequence measured from first 1
         long stringLengthExample = Long.parseLong("10110110", 2);
         System.out.println("Length of 10110110: " +
                 ((long)Math.floor(Math.log(stringLengthExample)/Math.log(2)) + 1));
