@@ -3,9 +3,10 @@ package assignment1;
 public class CyclicRedundancyCheck {
 
     /**
-     * Computes length of a given bitsequence starting from leading 1.
+     * Computes length of a given bitSequence starting from leading 1.
      *
      * @param bitSequence The input bit sequence as a long.
+     * @return length of bitSequence
      */
     private static long length(long bitSequence) {
         return (long) (Math.floor(Math.log(bitSequence) / Math.log(2)) + 1);
@@ -30,8 +31,7 @@ public class CyclicRedundancyCheck {
                 return -1;
             }
             long message = bitSequence << generatorLength - 1;
-            message = division(inputLength, generatorSequence, message);
-            return message;
+            return division(inputLength, generatorSequence, message);
         }
         else {
             return -1;
@@ -57,6 +57,7 @@ public class CyclicRedundancyCheck {
      * @param inputLength Length of given input sequence
      * @param generatorSequence Divisor of the division
      * @param message Variable length message as result of division, returned as remainder
+     * @return remainder of the division
      */
     private static long division(int inputLength, long generatorSequence, long message) {
         long temp = generatorSequence << (inputLength - 1);
