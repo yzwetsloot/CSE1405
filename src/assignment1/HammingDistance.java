@@ -1,6 +1,5 @@
 package assignment1;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class HammingDistance {
@@ -28,15 +27,5 @@ public class HammingDistance {
         else {
             return -1;
         }
-    }
-
-    public static void main(String[] args) {
-        ArrayList<Long> list = new ArrayList<>();
-        list.add(Long.parseLong("00000000", 2));
-        list.add(Long.parseLong("00001111", 2));
-        list.add(Long.parseLong("11110000", 2));
-        list.add(Long.parseLong("11111111", 2));
-
-        System.out.println(calculate(list));
     }
 }
