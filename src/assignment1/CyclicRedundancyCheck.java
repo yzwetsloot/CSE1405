@@ -3,6 +3,15 @@ package assignment1;
 public class CyclicRedundancyCheck {
 
     /**
+     * Computes length of a given bitsequence starting from leading 1.
+     *
+     * @param bitSequence The input bit sequence as a long.
+     */
+    private static long length(long bitSequence) {
+        return (long) (Math.floor(Math.log(bitSequence) / Math.log(2)) + 1);
+    }
+
+    /**
      * Calculates the CRC check value, or -1 if it cannot be calculated.
      *
      * @param bitSequence The input bit sequence
@@ -12,7 +21,7 @@ public class CyclicRedundancyCheck {
      */
     public static long calculateCRC(long bitSequence, int inputLength, long generatorSequence) {
         long generatorLength = length(generatorSequence);
-        if((inputLength > generatorLength) && (generatorLength > 1)) {
+        if((inputLength >= generatorLength) && (generatorLength > 1)) {
             long mask = 0;
             mask |= 1L << generatorLength - 1;
             mask |= 1L;
@@ -29,10 +38,6 @@ public class CyclicRedundancyCheck {
         }
     }
 
-    private static long length(long bitSequence) {
-        return (long) (Math.floor(Math.log(bitSequence) / Math.log(2)) + 1);
-    }
-
     /**
      * Checks the correctness of the bit sequence.
      *
@@ -46,15 +51,18 @@ public class CyclicRedundancyCheck {
         return calculateCRC(bitSequence, inputLength, generatorSequence) == checkSequence;
     }
 
+    /**
+     * Performs division on given message and generator sequence bit sequences.
+     *
+     * @param inputLength Length of given input sequence
+     * @param generatorSequence Divisor of the division
+     * @param message Variable length message as result of division, returned as remainder
+     */
     private static long division(int inputLength, long generatorSequence, long message) {
-        System.out.println("Message: " + Long.toBinaryString(message));
-
         long temp = generatorSequence << (inputLength - 1);
-        System.out.println("Generator sequence divisor: " + Long.toBinaryString(temp));
         for(int i = 0; i < inputLength; i++) {
             if(length(message) == length(temp)) {
                 message = message ^ temp;
-                System.out.println(Long.toBinaryString(message));
                 temp = temp >> 1L;
             }
             else {
@@ -63,13 +71,5 @@ public class CyclicRedundancyCheck {
             }
         }
         return message;
-    }
-
-    public static void main(String[] args) {
-        long bitSequence = Long.parseLong("1101011111", 2);
-        long generatorSequence = Long.parseLong("10011", 2);
-
-        System.out.println(calculateCRC(bitSequence, 14, generatorSequence));
-        System.out.println(checkCRC(bitSequence, 14, generatorSequence, 2));
     }
 }
