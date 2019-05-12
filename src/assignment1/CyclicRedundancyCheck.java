@@ -22,12 +22,12 @@ public class CyclicRedundancyCheck {
      */
     public static long calculateCRC(long bitSequence, int inputLength, long generatorSequence) {
         long generatorLength = length(generatorSequence);
-        if((inputLength >= generatorLength) && (generatorLength > 1)) {
+        if ((inputLength >= generatorLength) && (generatorLength > 1)) {
             long mask = 0;
             mask |= 1L << generatorLength - 1;
             mask |= 1L;
             boolean validGeneratorSequence = (Long.bitCount(generatorSequence & mask) == 2);
-            if(!validGeneratorSequence) {
+            if (!validGeneratorSequence) {
                 return -1;
             }
             long message = bitSequence << generatorLength - 1;
@@ -61,8 +61,8 @@ public class CyclicRedundancyCheck {
      */
     private static long division(int inputLength, long generatorSequence, long message) {
         long temp = generatorSequence << (inputLength - 1);
-        for(int i = 0; i < inputLength; i++) {
-            if(length(message) == length(temp)) {
+        for (int i = 0; i < inputLength; i++) {
+            if (length(message) == length(temp)) {
                 message = message ^ temp;
                 temp = temp >> 1L;
             }

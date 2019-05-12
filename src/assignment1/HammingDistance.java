@@ -10,13 +10,13 @@ public class HammingDistance {
      * @return The hamming distance of the given code , or -1 if it cannot be calculated
      */
     public static long calculate(List<Long> code) {
-        if(code.size() > 1) {
+        if (code.size() > 1) {
             long hammingDistance = Long.MAX_VALUE;
-            for(int i = 0; i < code.size(); i++) {
-                for(int j = 0; j < code.size(); j++) {
-                    if(!code.get(i).equals(code.get(j))) {
+            for (int i = 0; i < code.size(); i++) {
+                for (int j = 0; j < code.size(); j++) {
+                    if (!code.get(i).equals(code.get(j))) {
                         long oneCount = Long.bitCount(code.get(i) ^ code.get(j));
-                        if(oneCount < hammingDistance) {
+                        if (oneCount < hammingDistance) {
                             hammingDistance = oneCount;
                         }
                     }
