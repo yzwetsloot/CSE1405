@@ -1,6 +1,6 @@
-package assignment2;
+package assignment3;
 
-public class StaticRouting {
+public class LinkState {
     public static void main(String[] args) {
 
     }
