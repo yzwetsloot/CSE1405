@@ -10,6 +10,7 @@ import java.util.Map;
  * It holds a list of routes that can be queried to find the router which can reach the destination.
  */
 class DistanceVector {
+
     public static final String DATA_PACKET_TYPE = "D";
 
     public static final String ERROR_INVALID_TYPE = "INVALID TYPE";
@@ -84,6 +85,7 @@ class DistanceVector {
                         closest = entry.getValue();
                     }
                 }
+                assert closest != null;
                 String ret = closest.forwardingRouter + " " + closest.latency;
                 System.out.println(ret);
                 return ret;
@@ -114,14 +116,6 @@ class DistanceVector {
             }
         }
         return MESSAGE_ROUTE_RECEIVED;
-    }
-
-    public static void main(String[] args) {
-        DistanceVector distanceVector = new DistanceVector("004b");
-        System.out.println(DistanceVector.MESSAGE_ROUTE_RECEIVED.equals(distanceVector.processPacket("R 1530 80 1 72ba 10")));
-        System.out.println("1530 90".equals(distanceVector.processPacket("D b974 72ba eeb7c117b3b8821")));
-        System.out.println(DistanceVector.MESSAGE_THANK_YOU.equals(distanceVector.processPacket("D b974 004b eeb7c117b3b8821")) + "\n");
-        distanceVector.table.forEach((key, value) -> System.out.println(key + " " + value.forwardingRouter + " " + value.latency));
     }
 }
 
