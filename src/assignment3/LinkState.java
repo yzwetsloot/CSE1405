@@ -22,6 +22,8 @@ public class LinkState {
 
     public Map<String, Integer> neighbourRouters;
 
+    public NetworkGraph networkGraph;
+
     /**
      * Constructor to take in the router's identifier.
      *
@@ -30,6 +32,59 @@ public class LinkState {
     public LinkState(String routerIdentifier, Map<String, Integer> neighbourRouters) {
         this.routerIdentifier = routerIdentifier;
         this.neighbourRouters = neighbourRouters;
+        table = new HashMap<>();
+        networkGraph = new NetworkGraph();
+        Router current = new Router(routerIdentifier);
+
+        // Put all available routers inside the NetworkGraph
+        current.neighbours = neighbourRouters;
+        networkGraph.addRouter(current);
+
+        for (Map.Entry<String, Integer> entry : neighbourRouters.entrySet()) {
+            Router neighbourRouter = new Router(entry.getKey());
+            neighbourRouter.latency = entry.getValue();
+            neighbourRouter.neighbours.put(routerIdentifier, entry.getValue());
+            networkGraph.addRouter(neighbourRouter);
+        }
+        networkGraph.recomputeCosts(current);
+        printNetworkGraph();
+    }
+
+    public void printNetworkGraph() {
+        Router one = networkGraph.getRouter("024a");
+        Router two = networkGraph.getRouter("1920");
+        Router three = networkGraph.getRouter("1744");
+        Router four = networkGraph.getRouter("aaaa");
+
+        if (one != null) {
+            System.out.println("ID " + one.identifier + " latency to origin " + one.latency + " previous " + one.previous.identifier);
+
+            for (Map.Entry<String, Integer> entry : one.neighbours.entrySet()) {
+                System.out.println("Entry for 024a neighbour: " + entry.getKey() + " " + entry.getValue());
+            }
+        }
+        System.out.println();
+
+        System.out.println("ID " + two.identifier + " latency to origin " + two.latency + " previous " + two.previous.identifier);
+
+        for (Map.Entry<String, Integer> entry : two.neighbours.entrySet()) {
+            System.out.println("Entry for 1920 neighbour: " + entry.getKey() + " " + entry.getValue());
+        }
+        System.out.println();
+
+        System.out.println("ID " + three.identifier + " latency to origin " + three.latency + " previous " + three.previous.identifier);
+
+        for (Map.Entry<String, Integer> entry : three.neighbours.entrySet()) {
+            System.out.println("Entry for 1744 neighbour: " + entry.getKey() + " " + entry.getValue());
+        }
+        System.out.println();
+
+        System.out.println("ID " + four.identifier + " latency to origin " + four.latency + " previous " + four.previous.identifier);
+
+        for (Map.Entry<String, Integer> entry : four.neighbours.entrySet()) {
+            System.out.println("Entry for aaaa neighbour: " + entry.getKey() + " " + entry.getValue());
+        }
+        System.out.println("\n" + "//////////////////////////////////");
     }
 
     /**
@@ -73,8 +128,10 @@ public class LinkState {
      */
     private String processDataPacket(String source, String destination, String message) {
         if (!destination.equals(this.routerIdentifier)) {
-            if (table.containsKey(destination)) {
-                return "";
+            if (networkGraph.hasRouteToRouter(destination)) {
+                Router routVia = networkGraph.getRouter(destination).getForwardingRouter(networkGraph.getRouter(this.routerIdentifier));
+                String ret = routVia.identifier + " " + routVia.latency;
+                return ret;
             }
             return ERROR_NO_ROUTE;
         }
@@ -89,13 +146,24 @@ public class LinkState {
      * @return MESSAGE_ROUTE_RECEIVED (which is mapped to 'RECEIVED' in the code).
      */
     private String processRoutingPacket(String routerIdentifier, List<LSRoute> routes) {
-        if (!neighbourRouters.containsKey(routerIdentifier)) {
-            for (LSRoute i : routes) {
-                if (i.routerIdentifier.equals(routerIdentifier)) {
-                    table.put(routerIdentifier, new LSRoute(routerIdentifier, i.latency));
+        if (networkGraph.getRouter(routerIdentifier) != null) {
+            for (LSRoute route : routes) {
+                if (networkGraph.getRouter(route.routerIdentifier) == null) {
+                    Router newRouter = new Router(route.routerIdentifier);
+                    newRouter.neighbours.put(routerIdentifier, route.latency);
+                    networkGraph.addRouter(newRouter);
                 }
+                networkGraph.getRouter(routerIdentifier).neighbours.put(route.routerIdentifier, route.latency);
+            }
+        } else {
+            Router unknownRouter = new Router(routerIdentifier);
+            networkGraph.addRouter(unknownRouter);
+            for (LSRoute route : routes) {
+                networkGraph.getRouter(routerIdentifier).neighbours.put(route.routerIdentifier, route.latency);
             }
         }
+        networkGraph.recomputeCosts(networkGraph.getRouter(this.routerIdentifier));
+        printNetworkGraph();
         return MESSAGE_ROUTE_RECEIVED;
     }
 
@@ -104,10 +172,11 @@ public class LinkState {
         neighbours.put("1744", 197);
         neighbours.put("1920", 11);
         LinkState rt = new LinkState("aaaa", neighbours);
-        System.out.println(LinkState.MESSAGE_ROUTE_RECEIVED.equals(rt.processPacket("R 1744 3 aaaa 197 1920 39 024a 12")));
-        System.out.println(LinkState.MESSAGE_ROUTE_RECEIVED.equals(rt.processPacket("R 1920 3 aaaa 11 1744 39 024a 198")));
-        System.out.println(LinkState.MESSAGE_ROUTE_RECEIVED.equals(rt.processPacket("R 024a 2 1744 12 1920 198")));
-        System.out.println("1920 62".equals(rt.processPacket("D cccc 024a FEDCBA")));
+        System.out.println("\nRouting packet received: " + LinkState.MESSAGE_ROUTE_RECEIVED.equals(rt.processPacket("R 1744 3 aaaa 197 1920 39 024a 12")));
+        System.out.println("\nRouting packet received: " + LinkState.MESSAGE_ROUTE_RECEIVED.equals(rt.processPacket("R 1920 3 aaaa 11 1744 39 024a 198")));
+        System.out.println("\nRouting packet received: " + LinkState.MESSAGE_ROUTE_RECEIVED.equals(rt.processPacket("R 024a 2 1744 12 1920 198")));
+
+        System.out.println(rt.processPacket("D cccc 024a FEDCBA"));
     }
 }
 
